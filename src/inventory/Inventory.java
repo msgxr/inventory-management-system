@@ -28,12 +28,22 @@ public class Inventory implements Storable {
             throw new IllegalArgumentException("Ürün nesnesi null olamaz.");
         }
 
-        // Ürün adını normalize et (trim + lower case)
-        String normalizedName = product.getName().trim().toLowerCase();
+        // Ürün adını normalize et (trim + lower case + Türkçe karakter uyumu)
+        String normalizedName = product.getName()
+                .trim()
+                .toLowerCase()
+                .replace("ı", "i")
+                .replace("İ", "i");
 
         // Aynı isimde ürün var mı kontrol et
         for (Product p : products) {
-            if (p.getName().trim().toLowerCase().equals(normalizedName)) {
+            String existing = p.getName()
+                    .trim()
+                    .toLowerCase()
+                    .replace("ı", "i")
+                    .replace("İ", "i");
+
+            if (existing.equals(normalizedName)) {
                 throw new IllegalArgumentException("Aynı isimde ürün zaten mevcut.");
             }
         }
@@ -76,15 +86,32 @@ public class Inventory implements Storable {
     }
 
     /**
-     * Anahtar kelimeye göre ürün araması yapar.
+     * Gelişmiş ürün arama fonksiyonu.
+     * - trim()
+     * - ignoreCase
+     * - Türkçe karakter uyumu (ı/İ → i)
      *
      * @param keyword arama kelimesi
-     * @return arama sonucuna uyan ürün listesi
+     * @return uyumlu ürün listesi
      */
     public List<Product> searchProduct(String keyword) {
-        String lower = keyword.toLowerCase().trim();
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            throw new IllegalArgumentException("Arama kelimesi boş olamaz.");
+        }
+
+        String lower = keyword.trim()
+                .toLowerCase()
+                .replace("ı", "i")
+                .replace("İ", "i");
+
         return products.stream()
-                .filter(p -> p.getName().toLowerCase().contains(lower))
+                .filter(p -> p.getName()
+                        .trim()
+                        .toLowerCase()
+                        .replace("ı", "i")
+                        .replace("İ", "i")
+                        .contains(lower))
                 .collect(Collectors.toList());
     }
 
