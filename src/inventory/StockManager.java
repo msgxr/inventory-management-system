@@ -1,5 +1,9 @@
 package inventory;
 
+/**
+ * Envanterde stok işlemlerini yöneten sınıftır.
+ * Sipariş oluşturma ve stok yenileme gibi görevleri üstlenir.
+ */
 public class StockManager {
 
     private Inventory inventory;
@@ -8,13 +12,35 @@ public class StockManager {
         this.inventory = inventory;
     }
 
+    /**
+     * Bir sipariş oluşturur.
+     *
+     * @param product siparişi verilecek ürün
+     * @param quantity miktar
+     * @param supplier tedarikçi
+     * @return oluşturulan sipariş nesnesi
+     */
     public Order createOrder(Product product, int quantity, Supplier supplier) {
-        return new Order(product, quantity, supplier);
+        Order order = new Order(product, quantity, supplier);
+        System.out.println("[LOG] Sipariş oluşturuldu -> Ürün: " 
+                            + product.getName() 
+                            + ", Miktar: " + quantity);
+        return order;
     }
 
+    /**
+     * Siparişi işler ve stoğu artırır.
+     *
+     * @param order işlenecek sipariş
+     */
     public void restock(Order order) {
-        Product product = order.getProduct();
-        product.increaseStock(order.getQuantity());
+        if (order == null) {
+            throw new IllegalArgumentException("Order nesnesi null olamaz.");
+        }
+
         order.processOrder();
+        System.out.println("[LOG] Stok yenilendi -> " 
+                            + order.getQuantity() 
+                            + " adet eklendi.");
     }
 }
