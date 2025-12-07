@@ -145,6 +145,16 @@ public class Inventory implements Storable {
     }
 
     /**
+     * Tedarikçi listesinin kopyasını döndürür.
+     * Encapsulation gereği orijinal liste dışarı verilmez.
+     *
+     * @return tedarikçi listesi
+     */
+    public List<Supplier> getSuppliers() {
+        return new ArrayList<>(suppliers);
+    }
+
+    /**
      * Bir ürünün düşük stokta olup olmadığını kontrol eder.
      *
      * @param product kontrol edilecek ürün
