@@ -2,25 +2,28 @@ package inventory;
 
 /**
  * Tedarikçi bilgilerini temsil eden sınıftır.
- * Ürün siparişlerinde kullanılan tedarikçi adı ve iletişim bilgilerini içerir.
+ * Ad, iletişim numarası, e-posta ve genel iletişim bilgilerini kapsar.
  */
 public class Supplier {
 
     private String id;
     private String name;
-    private String contactInfo;
+    private String phone;
+    private String email;
 
     /**
      * Yeni bir Supplier nesnesi oluşturur.
      *
-     * @param id tedarikçinin benzersiz kimliği
+     * @param id benzersiz tedarikçi kimliği
      * @param name tedarikçi adı
-     * @param contactInfo iletişim bilgisi (telefon, e-posta vb.)
+     * @param phone telefon numarası
+     * @param email e-posta adresi
      */
-    public Supplier(String id, String name, String contactInfo) {
+    public Supplier(String id, String name, String phone, String email) {
         this.id = id;
         this.name = name;
-        this.contactInfo = contactInfo;
+        this.phone = phone;
+        this.email = email;
     }
 
     /** @return tedarikçi ID */
@@ -33,19 +36,24 @@ public class Supplier {
         return name;
     }
 
-    /** @return iletişim bilgisi */
-    public String getContactInfo() {
-        return contactInfo;
+    /** @return telefon numarası */
+    public String getPhone() {
+        return phone;
+    }
+
+    /** @return email adresi */
+    public String getEmail() {
+        return email;
     }
 
     /**
-     * Tedarikçi bilgisini profesyonel formatta döndürür.
+     * Tedarikçi bilgilerini profesyonel formatta döndürür.
      */
     @Override
     public String toString() {
         return String.format(
-                "Supplier[%s] %s | İletişim: %s",
-                id, name, contactInfo
+                "Supplier[%s] %s | Tel: %s | Email: %s",
+                id, name, phone, email
         );
     }
 }
