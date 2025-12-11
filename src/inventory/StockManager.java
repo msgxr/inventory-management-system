@@ -39,8 +39,18 @@ public class StockManager {
         }
 
         order.processOrder();
-        System.out.println("[LOG] Stok yenilendi -> " 
-                            + order.getQuantity() 
-                            + " adet eklendi.");
+
+        // Eğer envanter sağlanmışsa onu kullanarak veya en azından referansını
+        // loglayarak field'ı kullanıyoruz, aksi halde sadece miktarı logla.
+        if (this.inventory != null) {
+            System.out.println("[LOG] Envanter kullanılarak stok güncellendi -> "
+                                + this.inventory
+                                + ", " + order.getQuantity() 
+                                + " adet eklendi.");
+        } else {
+            System.out.println("[LOG] Stok yenilendi -> " 
+                                + order.getQuantity() 
+                                + " adet eklendi.");
+        }
     }
 }

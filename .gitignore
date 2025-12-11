@@ -10,3 +10,8 @@
 # OS files
 .DS_Store
 Thumbs.db
+
+/out/
+/lib/
+/build/
+/.gradle/
