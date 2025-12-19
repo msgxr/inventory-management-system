@@ -1,0 +1,8 @@
+C:\Users\muham\OneDrive\Desktop\inventory-project\src\inventory\Inventory.java
+C:\Users\muham\OneDrive\Desktop\inventory-project\src\inventory\Main.java
+C:\Users\muham\OneDrive\Desktop\inventory-project\src\inventory\Order.java
+C:\Users\muham\OneDrive\Desktop\inventory-project\src\inventory\PerishableProduct.java
+C:\Users\muham\OneDrive\Desktop\inventory-project\src\inventory\Product.java
+C:\Users\muham\OneDrive\Desktop\inventory-project\src\inventory\StockManager.java
+C:\Users\muham\OneDrive\Desktop\inventory-project\src\inventory\Storable.java
+C:\Users\muham\OneDrive\Desktop\inventory-project\src\inventory\Supplier.java

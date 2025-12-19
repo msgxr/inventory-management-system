@@ -81,7 +81,7 @@ public class Inventory implements Storable {
      */
     public void updateStock(String productId, int newStock) {
         Product p = findProductById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
+            .orElseThrow(() -> new IllegalArgumentException("Ürün bulunamadı: " + productId));
         p.setStock(newStock);
     }
 
