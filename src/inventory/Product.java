@@ -101,9 +101,13 @@ public class Product {
      */
     @Override
     public String toString() {
+        // Konsolda bazı karakterler (ör. 'ı' veya para sembolü) düzgün
+        // görünmeyebiliyor; çıktıyı daha güvenli hale getirmek için küçük
+        // normalizasyon uyguluyoruz (minimal değişiklik).
+        String displayName = name == null ? "" : name.replace('ı', 'i').replace('İ', 'I');
         return String.format(
-                "[%s] %s | Fiyat: %.2f₺ | Stok: %d | Min Stok: %d",
-                id, name, price, stock, minStockLevel
+            "[%s] %s | Fiyat: %.2f TL | Stok: %d | Min Stok: %d",
+            id, displayName, price, stock, minStockLevel
         );
     }
 }

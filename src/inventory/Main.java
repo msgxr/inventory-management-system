@@ -8,6 +8,13 @@ public class Main {
 
     public static void main(String[] args) {
 
+        // Kısa açıklama: Konsol çıktıları daha okunaklı olsun diye
+        // başlıkları düzenledim ve `Product.toString()` içinde küçük
+        // normalizasyon yapılarak para sembolü "TL" kullanıldı.
+        // Bu değişiklikler sadece görünümü iyileştirir, iş mantığına
+        // dokunulmadı.
+
+
         Inventory inventory = new Inventory();
         StockManager manager = new StockManager(inventory);
 
