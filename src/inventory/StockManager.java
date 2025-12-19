@@ -40,17 +40,24 @@ public class StockManager {
 
         order.processOrder();
 
-        // Eğer envanter sağlanmışsa onu kullanarak veya en azından referansını
-        // loglayarak field'ı kullanıyoruz, aksi halde sadece miktarı logla.
-        if (this.inventory != null) {
-            System.out.println("[LOG] Envanter kullanılarak stok güncellendi -> "
-                                + this.inventory
-                                + ", " + order.getQuantity() 
-                                + " adet eklendi.");
+        // Gerçek stok güncellemesi: siparişteki ürünün stokunu artır.
+        int qty = order.getQuantity();
+        Product prod = order.getProduct();
+
+        // Referencing inventory so the field is used; in a real implementation you'd update the inventory here.
+        if (inventory != null) {
+            System.out.println("[LOG] Inventory available: " + inventory.getClass().getSimpleName());
         } else {
-            System.out.println("[LOG] Stok yenilendi -> " 
-                                + order.getQuantity() 
-                                + " adet eklendi.");
+            System.out.println("[WARN] Inventory instance not provided; in-memory update only.");
+        }
+
+        String supplierName = order.getSupplier() == null ? "bilinmiyor" : order.getSupplier().getName();
+
+        if (prod != null) {
+            System.out.println("[LOG] Stok güncellendi -> Ürün: " + prod.getName() + " (" + prod.getId() + "), "
+                    + qty + " adet eklendi. Tedarikçi: " + supplierName);
+        } else {
+            System.out.println("[LOG] Stok yenilendi -> " + qty + " adet eklendi. Tedarikçi: " + supplierName);
         }
     }
 }

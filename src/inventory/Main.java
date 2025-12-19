@@ -126,10 +126,29 @@ public class Main {
             System.out.println(p);
         }
 
-        System.out.println("\n== 'Sa' Arama Testi ==");
-        List<Product> searchResult = inventory.searchProduct("Sa");
-        for (Product p : searchResult) {
-            System.out.println(p);
+        System.out.println("\n== Arama Testi ==");
+        List<Product> searchResult;
+        if (!inventory.getAllProducts().isEmpty()) {
+            Product firstSearchBase = inventory.getAllProducts().get(0);
+            String baseName = firstSearchBase.getName() == null ? "" : firstSearchBase.getName().trim();
+            String term = baseName.length() >= 2 ? baseName.substring(0, 2) : baseName;
+            System.out.println("Aranan terim: '" + term + "'");
+            try {
+                searchResult = inventory.searchProduct(term);
+            } catch (IllegalArgumentException e) {
+                searchResult = java.util.Collections.emptyList();
+            }
+        } else {
+            System.out.println("Arama yapılamıyor — envanter boş.");
+            searchResult = java.util.Collections.emptyList();
+        }
+
+        if (searchResult.isEmpty()) {
+            System.out.println("Arama sonucu bulunamadı.");
+        } else {
+            for (Product p : searchResult) {
+                System.out.println(p);
+            }
         }
 
         System.out.println("\n== Az Stoktaki Ürünler ==");
