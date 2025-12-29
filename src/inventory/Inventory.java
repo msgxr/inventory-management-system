@@ -1,5 +1,10 @@
 package inventory;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -7,20 +12,22 @@ import java.util.stream.Collectors;
 
 /**
  * Envanterdeki ürünleri ve tedarikçileri yöneten ana sınıftır.
- * Ürün ekleme, silme, arama, stok güncelleme ve düşük stok kontrolü gibi
- * temel işlemleri içerir.
+ * Ürünler RAM üzerinde yönetilir, aynı zamanda CSV dosyasına
+ * yazılarak kalıcı hale getirilir.
  */
 public class Inventory implements Storable {
 
     private List<Product> products = new ArrayList<>();
     private List<Supplier> suppliers = new ArrayList<>();
 
+    /* =========================================================
+       ÜRÜN YÖNETİMİ
+       ========================================================= */
+
     /**
      * Envantere yeni bir ürün ekler.
      * Ürün adı trim + küçük harfe dönüştürülerek
-     * duplicate (tekrarlanan) ürün adı kontrolü yapılır.
-     *
-     * @param product eklenecek ürün
+     * duplicate kontrolü yapılır.
      */
     public void addProduct(Product product) {
 
@@ -28,22 +35,10 @@ public class Inventory implements Storable {
             throw new IllegalArgumentException("Ürün nesnesi null olamaz.");
         }
 
-        // Ürün adını normalize et (trim + lower case + Türkçe karakter uyumu)
-        String normalizedName = product.getName()
-                .trim()
-                .toLowerCase()
-                .replace("ı", "i")
-                .replace("İ", "i");
+        String normalizedName = normalize(product.getName());
 
-        // Aynı isimde ürün var mı kontrol et
         for (Product p : products) {
-            String existing = p.getName()
-                    .trim()
-                    .toLowerCase()
-                    .replace("ı", "i")
-                    .replace("İ", "i");
-
-            if (existing.equals(normalizedName)) {
+            if (normalize(p.getName()).equals(normalizedName)) {
                 throw new IllegalArgumentException("Aynı isimde ürün zaten mevcut.");
             }
         }
@@ -52,20 +47,14 @@ public class Inventory implements Storable {
     }
 
     /**
-     * Verilen ürün kimliğine göre ürünü siler.
-     *
-     * @param productId ürün ID
-     * @return başarı durumu
+     * Ürün siler.
      */
     public boolean removeProduct(String productId) {
         return products.removeIf(p -> p.getId().equals(productId));
     }
 
     /**
-     * ID'ye göre ürün arar.
-     *
-     * @param id ürün kimliği
-     * @return bulunan ürün Optional olarak
+     * ID’ye göre ürün bulur.
      */
     public Optional<Product> findProductById(String id) {
         return products.stream()
@@ -74,25 +63,16 @@ public class Inventory implements Storable {
     }
 
     /**
-     * Ürün stok değerini günceller.
-     *
-     * @param productId ürün kimliği
-     * @param newStock yeni stok seviyesi
+     * Ürün stok güncellemesi yapar.
      */
     public void updateStock(String productId, int newStock) {
         Product p = findProductById(productId)
-            .orElseThrow(() -> new IllegalArgumentException("Ürün bulunamadı: " + productId));
+                .orElseThrow(() -> new IllegalArgumentException("Ürün bulunamadı: " + productId));
         p.setStock(newStock);
     }
 
     /**
-     * Gelişmiş ürün arama fonksiyonu.
-     * - trim()
-     * - ignoreCase
-     * - Türkçe karakter uyumu (ı/İ → i)
-     *
-     * @param keyword arama kelimesi
-     * @return uyumlu ürün listesi
+     * Gelişmiş ürün arama.
      */
     public List<Product> searchProduct(String keyword) {
 
@@ -100,25 +80,15 @@ public class Inventory implements Storable {
             throw new IllegalArgumentException("Arama kelimesi boş olamaz.");
         }
 
-        String lower = keyword.trim()
-                .toLowerCase()
-                .replace("ı", "i")
-                .replace("İ", "i");
+        String searchKey = normalize(keyword);
 
         return products.stream()
-                .filter(p -> p.getName()
-                        .trim()
-                        .toLowerCase()
-                        .replace("ı", "i")
-                        .replace("İ", "i")
-                        .contains(lower))
+                .filter(p -> normalize(p.getName()).contains(searchKey))
                 .collect(Collectors.toList());
     }
 
     /**
-     * Düşük stok seviyesindeki ürünleri listeler.
-     *
-     * @return düşük stok ürünler listesi
+     * Düşük stoklu ürünleri listeler.
      */
     public List<Product> listLowStock() {
         return products.stream()
@@ -127,39 +97,96 @@ public class Inventory implements Storable {
     }
 
     /**
-     * Yeni tedarikçi ekler.
-     *
-     * @param supplier tedarikçi
-     */
-    public void addSupplier(Supplier supplier) {
-        suppliers.add(supplier);
-    }
-
-    /**
-     * Tüm ürünlerin listesini kopyalayarak döner.
-     *
-     * @return ürün listesi
+     * Tüm ürünleri döndürür (kopya).
      */
     public List<Product> getAllProducts() {
         return new ArrayList<>(products);
     }
 
-    /**
-     * Tedarikçi listesinin kopyasını döndürür.
-     * Encapsulation gereği orijinal liste dışarı verilmez.
-     *
-     * @return tedarikçi listesi
-     */
+    /* =========================================================
+       TEDARİKÇİ
+       ========================================================= */
+
+    public void addSupplier(Supplier supplier) {
+        suppliers.add(supplier);
+    }
+
     public List<Supplier> getSuppliers() {
         return new ArrayList<>(suppliers);
     }
 
+    /* =========================================================
+       CSV KALICI KAYIT
+       ========================================================= */
+
     /**
-     * Bir ürünün düşük stokta olup olmadığını kontrol eder.
-     *
-     * @param product kontrol edilecek ürün
-     * @return düşük stok durumu
+     * Ürünleri CSV dosyasına yazar.
+     * Format: id,name,price,stock,minStock
      */
+    public void saveToCSV(String fileName) {
+
+        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(fileName))) {
+
+            writer.write("id,name,price,stock,minStock");
+            writer.newLine();
+
+            for (Product p : products) {
+                writer.write(
+                        p.getId() + "," +
+                        p.getName() + "," +
+                        p.getPrice() + "," +
+                        p.getStock() + "," +
+                        p.getMinStockLevel()
+                );
+                writer.newLine();
+            }
+
+        } catch (IOException e) {
+            System.out.println("CSV yazma hatası: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Ürünleri CSV dosyasından okur.
+     */
+    public void loadFromCSV(String fileName) {
+
+        products.clear();
+
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(fileName))) {
+
+            String line = reader.readLine(); // header atla
+
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+
+                Product product = new Product(
+                        data[0],
+                        data[1],
+                        Double.parseDouble(data[2]),
+                        Integer.parseInt(data[3]),
+                        Integer.parseInt(data[4])
+                );
+
+                products.add(product);
+            }
+
+        } catch (IOException e) {
+            System.out.println("CSV okuma hatası: " + e.getMessage());
+        }
+    }
+
+    /* =========================================================
+       YARDIMCI
+       ========================================================= */
+
+    private String normalize(String text) {
+        return text.trim()
+                .toLowerCase()
+                .replace("ı", "i")
+                .replace("İ", "i");
+    }
+
     @Override
     public boolean checkLowStock(Product product) {
         return product.getStock() <= product.getMinStockLevel();
