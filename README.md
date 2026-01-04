@@ -1,1 +1,2 @@
-"# Inventory Management System" 
+
+Bu proje, Java dili kullanılarak geliştirilen nesne tabanlı bir Stok Yönetim Sistemidir. Sistem; ürün, tedarikçi ve sipariş yönetimini kapsamakta olup ürün ekleme, silme, stok güncelleme, düşük stok analizi ve gelişmiş arama fonksiyonlarını içermektedir. Veriler çalışma sırasında RAM üzerinde tutulmakta, program başlatıldığında CSV dosyasından yüklenmekte ve program kapanırken CSV dosyasına kaydedilerek kalıcı hale getirilmektedir. Proje, nesne yönelimli tasarım prensiplerine uygun olarak geliştirilmiş, JUnit testleri ile doğrulanmış ve UML diyagramları ile modellenmiştir.
