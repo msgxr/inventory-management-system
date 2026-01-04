@@ -1,6 +1,3 @@
-Aşağıya README.md dosyasına doğrudan koyabileceğin, akademik dili olan, uzun, kaliteli ve hocanın A’dan Z’ye aradığı her şeyi kapsayan bir README metni yazıyorum.
-Bu metin final projesi seviyesindedir ve ekstra soru doğurmaz.
-
 
 
 Inventory Management System (Stok Yönetim Sistemi)
@@ -19,7 +16,7 @@ Kullanılan Teknolojiler
 	•	Build Aracı: Gradle
 	•	Test Altyapısı: JUnit
 	•	Veri Saklama: CSV dosyası
-	•	IDE: IntelliJ IDEA / VS Code (önerilen)
+	•	IDE: VS Code
 
 
 
