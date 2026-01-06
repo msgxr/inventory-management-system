@@ -16,139 +16,127 @@ public class Main {
         StockManager manager = new StockManager(inventory);
         Scanner sc = new Scanner(System.in);
 
-        System.out.println("--- Tedarikçi Bilgileri ---");
+        int choice;
 
-        System.out.print("Tedarikçi ID: ");
-        String supId = sc.nextLine().trim();
+        Supplier supplier = null;
 
-        System.out.print("Tedarikçi İsmi: ");
-        String supName = sc.nextLine().trim();
+        do {
+            System.out.println();
+            System.out.println("╔══════════════════════════════════════╗");
+            System.out.println("║        ENVANTER YÖNETİM SİSTEMİ       ║");
+            System.out.println("╠══════════════════════════════════════╣");
+            System.out.println("║ 1 │ Tedarikçi Ekle                    ║");
+            System.out.println("║ 2 │ Ürün Ekle                         ║");
+            System.out.println("║ 3 │ Ürünleri Listele                  ║");
+            System.out.println("║ 4 │ Ürün Ara                          ║");
+            System.out.println("║ 5 │ Kritik Stok Kontrolü              ║");
+            System.out.println("║ 6 │ Sipariş Oluştur & Restock         ║");
+            System.out.println("╠══════════════════════════════════════╣");
+            System.out.println("║ 0 │ Çıkış ve Kaydet                   ║");
+            System.out.println("╚══════════════════════════════════════╝");
+            System.out.print("Seçiminiz: ");
 
-        System.out.print("Tedarikçi İletişim (email/telefon): ");
-        String supContact = sc.nextLine().trim();
+            choice = sc.nextInt();
+            sc.nextLine();
 
-        // Boş girilirse varsayılan değerler
-        String finalId = supId.isEmpty() ? "S1" : supId;
-        String finalName = supName.isEmpty() ? "ABC Tedarik" : supName;
-        String finalContact = supContact.isEmpty() ? "abc@tedarik.com" : supContact;
+            switch (choice) {
 
-        Supplier supplier = new Supplier(finalId, finalName, finalContact, finalContact);
-        inventory.addSupplier(supplier);
+                case 1:
+                    System.out.println("--- Tedarikçi Bilgileri ---");
 
-        System.out.print("Kaç ürün eklemek istersiniz? ");
-        int count;
+                    System.out.print("Tedarikçi ID: ");
+                    String supId = sc.nextLine().trim();
 
-        try {
-            count = Integer.parseInt(sc.nextLine().trim());
-        } catch (Exception e) {
-            count = 0;
-        }
+                    System.out.print("Tedarikçi İsmi: ");
+                    String supName = sc.nextLine().trim();
 
-        for (int i = 0; i < count; i++) {
+                    System.out.print("Tedarikçi İletişim: ");
+                    String supContact = sc.nextLine().trim();
 
-            System.out.println("\n-- Ürün " + (i + 1) + " --");
+                    String finalId = supId.isEmpty() ? "S1" : supId;
+                    String finalName = supName.isEmpty() ? "ABC Tedarik" : supName;
+                    String finalContact = supContact.isEmpty() ? "abc@tedarik.com" : supContact;
 
-            System.out.print("Ürün ID: ");
-            String id = sc.nextLine().trim();
+                    supplier = new Supplier(finalId, finalName, finalContact, finalContact);
+                    inventory.addSupplier(supplier);
 
-            System.out.print("Ürün İsmi: ");
-            String name = sc.nextLine().trim();
+                    System.out.println("Tedarikçi eklendi.");
+                    break;
 
-            System.out.print("Fiyat (örn: 100.0): ");
-            double price;
-            try {
-                price = Double.parseDouble(sc.nextLine().trim());
-            } catch (Exception e) {
-                price = 0.0;
+                case 2:
+                    System.out.print("Ürün ID: ");
+                    String id = sc.nextLine().trim();
+
+                    System.out.print("Ürün İsmi: ");
+                    String name = sc.nextLine().trim();
+
+                    System.out.print("Fiyat: ");
+                    double price = Double.parseDouble(sc.nextLine().trim());
+
+                    System.out.print("Stok: ");
+                    int stock = Integer.parseInt(sc.nextLine().trim());
+
+                    System.out.print("Minimum Stok: ");
+                    int minStock = Integer.parseInt(sc.nextLine().trim());
+
+                    System.out.print("Bozulabilir mi? (E/h): ");
+                    String per = sc.nextLine().trim();
+
+                    if (per.equalsIgnoreCase("E")) {
+                        System.out.print("Son kullanma tarihi (YYYY-MM-DD): ");
+                        LocalDate exp = LocalDate.parse(sc.nextLine().trim());
+
+                        inventory.addProduct(new PerishableProduct(
+                                id, name, price, stock, minStock, exp
+                        ));
+                    } else {
+                        inventory.addProduct(new Product(
+                                id, name, price, stock, minStock
+                        ));
+                    }
+
+                    System.out.println("Ürün eklendi.");
+                    break;
+
+                case 3:
+                    System.out.println("== TÜM ÜRÜNLER ==");
+                    inventory.getAllProducts().forEach(System.out::println);
+                    break;
+
+                case 4:
+                    System.out.print("Arama kelimesi: ");
+                    String term = sc.nextLine();
+                    inventory.searchProduct(term).forEach(System.out::println);
+                    break;
+
+                case 5:
+                    System.out.println("== KRİTİK STOKTAKİ ÜRÜNLER ==");
+                    inventory.listLowStock().forEach(System.out::println);
+                    break;
+
+                case 6:
+                    if (supplier == null || inventory.getAllProducts().isEmpty()) {
+                        System.out.println("Sipariş için tedarikçi veya ürün yok.");
+                        break;
+                    }
+
+                    Product first = inventory.getAllProducts().get(0);
+                    Order order = manager.createOrder(first, 5, supplier);
+                    manager.restock(order);
+                    System.out.println("Sipariş işlendi: " + order);
+                    break;
+
+                case 0:
+                    inventory.saveToCSV("inventory.csv");
+                    System.out.println("Veriler CSV dosyasına kaydedildi. Çıkılıyor...");
+                    break;
+
+                default:
+                    System.out.println("Geçersiz seçim.");
             }
 
-            System.out.print("Stok Miktarı (örn: 5): ");
-            int stock;
-            try {
-                stock = Integer.parseInt(sc.nextLine().trim());
-            } catch (Exception e) {
-                stock = 0;
-            }
-
-            System.out.print("Minimum Stok Seviyesi (örn: 2): ");
-            int minStock;
-            try {
-                minStock = Integer.parseInt(sc.nextLine().trim());
-            } catch (Exception e) {
-                minStock = 0;
-            }
-
-            System.out.print("Bozulabilir ürün mü? (E/h): ");
-            String per = sc.nextLine().trim();
-
-            if (!per.isEmpty() && (per.equalsIgnoreCase("E")
-                    || per.equalsIgnoreCase("Y")
-                    || per.equalsIgnoreCase("evet"))) {
-
-                System.out.print("Son kullanma tarihi (YYYY-MM-DD): ");
-                LocalDate exp;
-                try {
-                    exp = LocalDate.parse(sc.nextLine().trim());
-                } catch (Exception e) {
-                    exp = LocalDate.now().plusDays(7);
-                }
-
-                inventory.addProduct(new PerishableProduct(
-                        id.isEmpty() ? "P" + (i + 1) : id,
-                        name.isEmpty() ? "Ürün" + (i + 1) : name,
-                        price, stock, minStock, exp
-                ));
-
-            } else {
-
-                inventory.addProduct(new Product(
-                        id.isEmpty() ? "P" + (i + 1) : id,
-                        name.isEmpty() ? "Ürün" + (i + 1) : name,
-                        price, stock, minStock
-                ));
-            }
-        }
+        } while (choice != 0);
 
         sc.close();
-
-        System.out.println("\n== TÜM ÜRÜNLER ==");
-        for (Product p : inventory.getAllProducts()) {
-            System.out.println(p);
-        }
-
-        System.out.println("\n== Arama Testi ==");
-        if (!inventory.getAllProducts().isEmpty()) {
-            Product first = inventory.getAllProducts().get(0);
-            String term = first.getName().length() >= 2
-                    ? first.getName().substring(0, 2)
-                    : first.getName();
-
-            System.out.println("Aranan terim: '" + term + "'");
-            inventory.searchProduct(term).forEach(System.out::println);
-        } else {
-            System.out.println("Arama yapılamıyor — envanter boş.");
-        }
-
-        System.out.println("\n== Az Stoktaki Ürünler ==");
-        List<Product> lowStock = inventory.listLowStock();
-        if (lowStock.isEmpty()) {
-            System.out.println("Düşük stokta ürün yok.");
-        } else {
-            lowStock.forEach(System.out::println);
-        }
-
-        System.out.println("\n== Sipariş ve Restock Testi ==");
-        if (!inventory.getAllProducts().isEmpty()) {
-            Product first = inventory.getAllProducts().get(0);
-            Order order = manager.createOrder(first, 5, supplier);
-            manager.restock(order);
-            System.out.println("Sipariş işlendi: " + order);
-        }
-
-        System.out.println("\n== Restock Sonrası Ürünler ==");
-        inventory.getAllProducts().forEach(System.out::println);
-
-        // ▶ Program kapanırken CSV’ye kaydet
-        inventory.saveToCSV("inventory.csv");
     }
 }
